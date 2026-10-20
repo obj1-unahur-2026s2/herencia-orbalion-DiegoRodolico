@@ -1,0 +1,261 @@
+import orbalion.*
+describe "tests para orbalion checkpoint 1" {
+  test "Un entrenador no puede tener un rol distinto a los autorizados por la FOZ" {
+    assert.throwsExceptionWithMessage("Rol no homologado por la FOZ",{new Entrenador(ciclos = 1,estaEnSintonia = true,precision = 1,rol = rolNofuncional)})
+  }
+  test "Un equipo lumínico con radiación > 5000 y sin tecnologías activas → su energía total es su energía base."{
+    const luminico1 = new Luminico(
+        nombre = "luminico1",
+        energia = 10,
+        entrenador = {new Entrenador(
+            ciclos=1,
+            estaEnSintonia=true,
+            precision=1,
+            rol=estrategaCuantico
+        )},
+        radiacion = 5200
+    )
+    assert.equals(10, luminico1.energiaTotal())
+  }
+  test "Un equipo lumínico con radiación < 5000 → obtiene el bono del 10%."{
+    const luminico1 = new Luminico(
+        nombre = "luminico1",
+        energia = 10,
+        entrenador = {new Entrenador(
+            ciclos=1,
+            estaEnSintonia=true,
+            precision=1,
+            rol=estrategaCuantico
+        )},
+        radiacion = 3000
+    )
+    assert.equals(11, luminico1.energiaTotal())
+  }
+  test "Un equipo sintético con 6 módulos → aplica correctamente la penalización del 20%."{
+    const sintetico1 = new Sintetico(
+        nombre = "sintetico1",
+        energia = 10,
+        entrenador = {new Entrenador(
+            ciclos=1,
+            estaEnSintonia=true,
+            precision=1,
+            rol=estrategaCuantico
+        )},  
+        procesamiento=0,
+        modulos=6,
+        estaCertificado=true
+    )
+    assert.equals(8, sintetico1.energiaTotal())
+  }
+  test "Un equipo sintético con 4 módulos y 2 tecnologías complementarias → suma correctamente los valores energéticos."{
+    const tecnologia1 = new Tecnologia(
+        nombre="tecnologia1",
+        valorEnergetico=0,
+        estaActiva=true
+    )
+    const tecnologia2 = new Tecnologia(
+        nombre="tecnologia2",
+        valorEnergetico=0,
+        estaActiva=true
+    )
+    const sintetico1 = new Sintetico(
+        nombre = "sintetico1",
+        energia = 10,
+        entrenador = {new Entrenador(
+            ciclos=1,
+            estaEnSintonia=true,
+            precision=1,
+            rol=estrategaCuantico
+        )},  
+        procesamiento=0,
+        modulos=4,
+        estaCertificado=true,
+        tecnologias = [tecnologia1,tecnologia2]
+    )
+    assert.equals(10, sintetico1.energiaTotal())
+  }
+
+}
+describe "tests para orbalion checkpoint 2" {
+  test "Estratega cuántico con 12 ciclos y precisión 90 → es de élite galáctica" {
+    const entrenador1 = new Entrenador(
+        ciclos=12,
+        estaEnSintonia=false,
+        precision=90,
+        rol=estrategaCuantico
+    )
+    assert.that(entrenador1.esEliteGalactica())
+  }
+  test "Arquitecto de energía con 11 ciclos pero sin sintonía → no es de élite." {
+    const entrenador1 = new Entrenador(
+        ciclos=11,
+        estaEnSintonia=false,
+        precision=90,
+        rol=arquitectoDeEnergia
+    )
+    assert.notThat(entrenador1.esEliteGalactica())    
+  }
+  test "Guía mental con 15 ciclos → siempre es de élite." {
+    const entrenador1 = new Entrenador(
+        ciclos=15,
+        estaEnSintonia=false,
+        precision=90,
+        rol=guiaMental
+    )
+    assert.that(entrenador1.esEliteGalactica())      
+  }
+}
+describe "tests para orbalion checkpoint 3" {
+  test "Equipo lumínico con 3 cristales, entrenador de élite y una tecnología activa → es de prestigio universal." {
+    const tecnologia1 = new Tecnologia(
+        nombre="tecnologia1",
+        valorEnergetico=0,
+        estaActiva=true
+    )
+    const entrenador1 = new Entrenador(
+        ciclos=15,
+        estaEnSintonia=false,
+        precision=90,
+        rol=guiaMental
+    ) 
+    const luminico1 = new Luminico(
+        nombre = "luminico1",
+        energia = 10,
+        entrenador = entrenador1,
+        radiacion = 3000,
+        cristales = ["cristal1","cristal2","cristal3"],
+        tecnologias = [tecnologia1]
+    )
+    assert.that(luminico1.esDePrestigioUniversal())
+  }
+  test "Equipo sintético certificado con 4 módulos y todas las tecnologías activas → es de prestigio." {
+    const tecnologia1 = new Tecnologia(
+        nombre="tecnologia1",
+        valorEnergetico=0,
+        estaActiva=true
+    )
+    const entrenador1 = new Entrenador(
+        ciclos=15,
+        estaEnSintonia=false,
+        precision=90,
+        rol=guiaMental
+    ) 
+    const sintetico1 = new Sintetico(
+        nombre = "sintetico1",
+        energia = 10,
+        entrenador = entrenador1,
+        procesamiento=0,
+        modulos=4,
+        estaCertificado=true,
+        tecnologias = [tecnologia1]
+    )
+
+    assert.that(sintetico1.esDePrestigioUniversal())
+  }
+  test "Casos negativos para verificar que no cumple las condiciones." {
+        const tecnologia1 = new Tecnologia(
+        nombre="tecnologia1",
+        valorEnergetico=0,
+        estaActiva=false
+    )
+    const entrenador1 = new Entrenador(
+        ciclos=15,
+        estaEnSintonia=false,
+        precision=90,
+        rol=guiaMental
+    ) 
+    const luminico1 = new Luminico(
+        nombre = "luminico1",
+        energia = 10,
+        entrenador = entrenador1,
+        radiacion = 3000,
+        cristales = ["cristal1","cristal2","cristal3"],
+        tecnologias = [tecnologia1]
+    )
+    assert.notThat(luminico1.esDePrestigioUniversal())
+  }
+}
+describe "tests para orbalion checkpoint 4" {
+  test "Equipo etérico con 3 portales, fluctuación 80 y 2 tecnologías activas → es de prestigio universal." {
+    const tecnologia1 = new Tecnologia(
+        nombre="tecnologia1",
+        valorEnergetico=0,
+        estaActiva=true
+    )
+    const tecnologia2 = new Tecnologia(
+        nombre="tecnologia2",
+        valorEnergetico=0,
+        estaActiva=true
+    )
+    const entrenador1 = new Entrenador(
+        ciclos=15,
+        estaEnSintonia=false,
+        precision=90,
+        rol=guiaMental
+    ) 
+    const eterico1 = new Eterico(
+        nombre = "eterico1",
+        energia = 10,
+        entrenador = entrenador1,
+        tecnologias = [tecnologia1,tecnologia2],
+        fluctuacion=80,
+        portales=3
+    )
+    assert.that(eterico1.esDePrestigioUniversal())
+  }
+  test "Verificar que el incremento del 15% se aplica correctamente." {
+    const tecnologia1 = new Tecnologia(
+        nombre="tecnologia1",
+        valorEnergetico=0,
+        estaActiva=true
+    )
+    const tecnologia2 = new Tecnologia(
+        nombre="tecnologia2",
+        valorEnergetico=0,
+        estaActiva=true
+    )
+    const entrenador1 = new Entrenador(
+        ciclos=15,
+        estaEnSintonia=false,
+        precision=90,
+        rol=guiaMental
+    ) 
+    const eterico1 = new Eterico(
+        nombre = "eterico1",
+        energia = 10,
+        entrenador = entrenador1,
+        tecnologias = [tecnologia1,tecnologia2],
+        fluctuacion=80,
+        portales=3
+    )
+    assert.equals(11.5,eterico1.energiaTotal())
+  }
+  test "Verificar que un equipo etérico que no cumple las condiciones no suma el 15%." {
+    const tecnologia1 = new Tecnologia(
+        nombre="tecnologia1",
+        valorEnergetico=0,
+        estaActiva=false
+    )
+    const tecnologia2 = new Tecnologia(
+        nombre="tecnologia2",
+        valorEnergetico=0,
+        estaActiva=true
+    )
+    const entrenador1 = new Entrenador(
+        ciclos=15,
+        estaEnSintonia=false,
+        precision=90,
+        rol=guiaMental
+    ) 
+    const eterico1 = new Eterico(
+        nombre = "eterico1",
+        energia = 10,
+        entrenador = entrenador1,
+        tecnologias = [tecnologia1,tecnologia2],
+        fluctuacion=80,
+        portales=3
+    )
+    assert.equals(10,eterico1.energiaTotal())
+  }    
+
+}
